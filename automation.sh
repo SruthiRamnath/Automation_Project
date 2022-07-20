@@ -47,3 +47,26 @@ sudo tar -czvf /var/tmp/$name-httpd-logs-$timestamp.tar access.log error.log
 
 aws s3 cp /var/tmp/$name-httpd-logs-$timestamp.tar s3://${s3Bucket}/$name-httpd-logs-$timestamp.tar
 
+# Check for the presence of the inventory.html file
+
+if [[ ! -f /var/www/html/inventory.html ]]; then
+    echo "Creating Inventory file"
+    sudo touch /var/www/html/inventory.html
+    sudo chmod 777 /var/www/html/inventory.html
+    sudo echo "Log Type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time Created&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Size<br>" >> /var/www/html/inventory.html
+fi
+
+sudo echo "httpd-logs&nbsp;&nbsp;&nbsp;&nbsp;$timestamp&nbsp;&nbsp;&nbsp;&nbsp;tar&nbsp;&nbsp;&nbsp;&nbsp;$filesize Bytes<br>" >> /var/www/html/inventory.html
+
+
+# Cron Job
+
+if [ -f /etc/cron.d/automation ]
+then
+        echo "Cron job is scheduled already"
+else
+        touch /etc/cron.d/automation
+        echo "0 0 * * * root /root/Automation_Project/automation.sh" >> /etc/cron.d/automation
+        echo "Cron Job is scheduled at 12:00 everyday"
+fi
+
